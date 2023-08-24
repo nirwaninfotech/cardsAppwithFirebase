@@ -1,8 +1,18 @@
 const WebSocket = require('ws');
 
+const admin = require('firebase-admin');
+const serviceAccount = require('./firebase/firebaseKey.json') // Replace with your own path
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // // Replace with your Firebase Database URL
+});
+
 const port = process.env.PORT || 8080;
 
 const wss = new WebSocket.Server({ port: port });
+
+
 
 const awinning = [
   {
@@ -268,13 +278,18 @@ function getRandomIndex(list) {
   return Math.floor(Math.random() * list.length);
 }
 
-// Define a function to send both current time and winning cards
-
 // ...
 
 // Define a function to send both current time and winning cards
 function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
+  // Replace winningCardSet with your actual winning card set ('a' or 'b')
+
+  const db = admin.firestore();
+
+
+// Use the timestamp as the document name
+
 
   // Reset the time when it reaches 100 seconds
   if (currentTime >= 100) {
@@ -282,26 +297,45 @@ function sendCurrentTimeAndCards() {
     currentTime = 0;
   }
 
-  let selectedCards = [];
-  let winningSet = null;
-  let winner = '';
+  // Send current time every second
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ currentTime }));
+    }
+  });
 
-  if (forceValue === 'a') {
-    selectedCards = awinning[getRandomIndex(awinning)];
-    winner = 'a';
-  } else if (forceValue === 'b') {
-    selectedCards = bwinning[getRandomIndex(bwinning)];
-    winner = 'b';
-  } else {
-    const totalVotes = userVotes.a + userVotes.b;
+  // Send selected cards after 99 seconds
+  if (currentTime === 99) {
+    let selectedCards = [];
+    let winningSet = null;
+    let winner = '';
 
-    if (totalVotes > 0) {
-      if (userVotes.a < userVotes.b) {
-        winningSet = awinning;
-        winner = 'a';
-      } else if (userVotes.b < userVotes.a) {
-        winningSet = bwinning;
-        winner = 'b';
+    if (forceValue === 'a') {
+      selectedCards = awinning[getRandomIndex(awinning)];
+      winner = 'a';
+    } else if (forceValue === 'b') {
+      selectedCards = bwinning[getRandomIndex(bwinning)];
+      winner = 'b';
+    } else {
+      const totalVotes = userVotes.a + userVotes.b;
+
+      if (totalVotes > 0) {
+        if (userVotes.a < userVotes.b) {
+          winningSet = awinning;
+          winner = 'a';
+        } else if (userVotes.b < userVotes.a) {
+          winningSet = bwinning;
+          winner = 'b';
+        } else {
+          // Randomly choose between awinning and bwinning
+          if (Math.random() < 0.5) {
+            winningSet = awinning;
+            winner = 'a';
+          } else {
+            winningSet = bwinning;
+            winner = 'b';
+          }
+        }
       } else {
         // Randomly choose between awinning and bwinning
         if (Math.random() < 0.5) {
@@ -312,55 +346,93 @@ function sendCurrentTimeAndCards() {
           winner = 'b';
         }
       }
-    } else {
-      // Randomly choose between awinning and bwinning
-      if (Math.random() < 0.5) {
-        winningSet = awinning;
-        winner = 'a';
-      } else {
-        winningSet = bwinning;
-        winner = 'b';
-      }
     }
-  }
 
-  if (winningSet) {
-    selectedCards = winningSet[getRandomIndex(winningSet)];
-  }
-
-  const response = {
-    winner: winner,
-    cards: selectedCards,
-    // currentTime: currentTime, // Include current time in the response
-  };
-
-  lastResponses.unshift(response.winner);
-  if (lastResponses.length > 10) {
-    lastResponses.pop();
-  }
-
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(response));
-      client.send(JSON.stringify(currentTime));
-      client.send(JSON.stringify(lastResponses));
+    if (winningSet) {
+      selectedCards = winningSet[getRandomIndex(winningSet)];
     }
+
+    const response = {
+      winner: winner,
+      cards: selectedCards,
+    };
+
+
+const today = new Date(); // Get the current date
+const year = today.getFullYear().toString();
+const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = today.getDate().toString().padStart(2, '0');
+const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+const actualDate = `${year}/${month}:${date}`;
+
+
+// Reference to the "Winning Cards" collection
+const winningCardsCollection = db.collection('Winning Cards');
+
+// Reference to the year document (e.g., "2023")
+const yearDocument = winningCardsCollection.doc(year);
+
+// Reference to the "Months" subcollection inside the year document
+const monthsCollection = yearDocument.collection('Months');
+
+// Reference to the month document (e.g., "08")
+const monthDocument = monthsCollection.doc(month);
+
+// Reference to the "Dates" subcollection inside the month document
+const datesCollection = monthDocument.collection('Dates');
+
+// Reference to the date document (e.g., "23")
+const dateDocument = datesCollection.doc(date);
+
+const cardCollection = dateDocument.collection('winners');
+
+// Data to be stored in the date document
+const data = {
+  winningCard: winner, // Set this to the actual winning card ('a' or 'b')
+  date: actualDate, // Firestore Timestamp for the current date and time
+  time: acutualTime, // Add the current time to the data
+};
+
+// Set the data in the date document
+ cardCollection.doc(acutualTime).set(data)
+  .then(() => {
+    console.log('Data successfully written to Firestore');
+  })
+  .catch((error) => {
+    console.error('Error writing data to Firestore: ', error);
   });
 
-  // Reset userVotes
-  userVotes = {
-    a: 0,
-    b: 0,
-  };
-  forceValue = null;
+
+
+    lastResponses.unshift(response.winner);
+    if (lastResponses.length > 10) {
+      lastResponses.pop();
+    }
+
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(response));
+        client.send(JSON.stringify(lastResponses));
+      }
+    });
+
+    // Reset userVotes
+    userVotes = {
+      a: 0,
+      b: 0,
+    };
+    forceValue = null;
+  }
 }
 
-// Start sending random card sets and current time from a single setInterval
+// Start sending current time every second
 setInterval(() => {
   sendCurrentTimeAndCards(); // Call the function to send both time and cards
-}, 1000); // 1 second interval for more precise timing
+}, 1000); // Update time every second
 
 // ...
+
+
 
 wss.on('connection', (ws) => {
   console.log('Client connected');

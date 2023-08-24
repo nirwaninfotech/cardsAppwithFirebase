@@ -4,7 +4,6 @@ const port = process.env.PORT || 8080;
 
 const wss = new WebSocket.Server({ port: port });
 
-
 const awinning = [
   {
     "A_Set": [
@@ -254,6 +253,7 @@ const bwinning = [
   },
 ];
 
+
 let userVotes = {
   a: 0,
   b: 0,
@@ -268,29 +268,57 @@ function getRandomIndex(list) {
   return Math.floor(Math.random() * list.length);
 }
 
+// ...
 
+// Define a function to send both current time and winning cards
+function sendCurrentTimeAndCards() {
+  let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
 
-function sendRandomCardSets() {
-  let selectedCards = [];
-  let winningSet = null;
-  let winner = '';
+  // Reset the time when it reaches 100 seconds
+  if (currentTime >= 100) {
+    startTime = new Date();
+    currentTime = 0;
+  }
 
-  if (forceValue === 'a') {
-    selectedCards = awinning[getRandomIndex(awinning)];
-    winner = 'a';
-  } else if (forceValue === 'b') {
-    selectedCards = bwinning[getRandomIndex(bwinning)];
-    winner = 'b';
-  } else {
-    const totalVotes = userVotes.a + userVotes.b;
+  // Send current time every second
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ currentTime }));
+    }
+  });
 
-    if (totalVotes > 0) {
-      if (userVotes.a < userVotes.b) {
-        winningSet = awinning;
-        winner = 'a';
-      } else if (userVotes.b < userVotes.a) {
-        winningSet = bwinning;
-        winner = 'b';
+  // Send selected cards after 99 seconds
+  if (currentTime === 99) {
+    let selectedCards = [];
+    let winningSet = null;
+    let winner = '';
+
+    if (forceValue === 'a') {
+      selectedCards = awinning[getRandomIndex(awinning)];
+      winner = 'a';
+    } else if (forceValue === 'b') {
+      selectedCards = bwinning[getRandomIndex(bwinning)];
+      winner = 'b';
+    } else {
+      const totalVotes = userVotes.a + userVotes.b;
+
+      if (totalVotes > 0) {
+        if (userVotes.a < userVotes.b) {
+          winningSet = awinning;
+          winner = 'a';
+        } else if (userVotes.b < userVotes.a) {
+          winningSet = bwinning;
+          winner = 'b';
+        } else {
+          // Randomly choose between awinning and bwinning
+          if (Math.random() < 0.5) {
+            winningSet = awinning;
+            winner = 'a';
+          } else {
+            winningSet = bwinning;
+            winner = 'b';
+          }
+        }
       } else {
         // Randomly choose between awinning and bwinning
         if (Math.random() < 0.5) {
@@ -301,69 +329,46 @@ function sendRandomCardSets() {
           winner = 'b';
         }
       }
-    } else {
-      // Randomly choose between awinning and bwinning
-      if (Math.random() < 0.5) {
-        winningSet = awinning;
-        winner = 'a';
-      } else {
-        winningSet = bwinning;
-        winner = 'b';
+    }
+
+    if (winningSet) {
+      selectedCards = winningSet[getRandomIndex(winningSet)];
+    }
+
+    const response = {
+      winner: winner,
+      cards: selectedCards,
+    };
+
+    lastResponses.unshift(response.winner);
+    if (lastResponses.length > 10) {
+      lastResponses.pop();
+    }
+
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(response));
+        client.send(JSON.stringify(lastResponses));
       }
-    }
+    });
+
+    // Reset userVotes
+    userVotes = {
+      a: 0,
+      b: 0,
+    };
+    forceValue = null;
   }
-
-  if (winningSet) {
-    selectedCards = winningSet[getRandomIndex(winningSet)];
-  }
-
-  const response = {
-    winner: winner,
-    cards: selectedCards,
-  };
-
-  lastResponses.unshift(response.winner);
-  if (lastResponses.length > 10) {
-    lastResponses.pop();
-  }
-
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(response));
-      client.send(JSON.stringify(lastResponses));
-
-    }
-  });
-
-  // Reset userVotes
-  userVotes = {
-    a: 0,
-    b: 0,
-  };
-  forceValue = null;
 }
 
-// Start sending random card sets every 1 minute
+// Start sending current time every second
 setInterval(() => {
-  sendRandomCardSets();
-}, 100000); // 1 minute in milliseconds
-
-// Send current time status continuously to all connected clients
-setInterval(() => {
-  let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
-
-  // Reset the time when it reaches 100 seconds
-  if (currentTime >= 100) {
-    startTime = new Date();
-    currentTime = 0;
-  }
-
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ currentTime }));
-    }
-  });
+  sendCurrentTimeAndCards(); // Call the function to send both time and cards
 }, 1000); // Update time every second
+
+// ...
+
+
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
@@ -398,4 +403,3 @@ wss.on('connection', (ws) => {
   const currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
   ws.send(JSON.stringify({ currentTime }));
 });
-

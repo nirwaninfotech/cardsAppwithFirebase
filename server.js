@@ -1,7 +1,8 @@
 const WebSocket = require('ws');
 
 const admin = require('firebase-admin');
-const serviceAccount = require('./firebase/firebaseKey.json') // Replace with your own path
+// const serviceAccount = require('./firebase/firebaseKey.json') // Replace with your own path
+const serviceAccount = JSON.parse(process.env.firebaseKey.json); 
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

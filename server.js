@@ -1,9 +1,53 @@
 const WebSocket = require('ws');
 
 const admin = require('firebase-admin');
-// const serviceAccount = require('./firebase/firebaseKey.json') // Replace with your own path
-const serviceAccount = JSON.parse(process.env.firebaseKey.json); 
-//New modiefied
+
+const fs = require('fs');
+
+const ntpClient = require('ntp-client');
+
+// Define the NTP server you want to synchronize with
+const ntpServer = 'pool.ntp.org'; // You can replace this with a preferred NTP server
+
+// Synchronize the server's time with the NTP server
+ntpClient.getNetworkTime(ntpServer, 123, (err, date) => {
+  if (err) {
+    console.error('Error synchronizing time:', err);
+  } else {
+    // Set the server's system time to the obtained NTP time
+    ntpClient.setSystemTime(date);
+    console.log('Server time synchronized:', date);
+    
+    // Now you can use the synchronized time in your application
+    const synchronizedDate = new Date();
+
+    // Example: Log the synchronized date and time
+    console.log('Synchronized Date:', synchronizedDate.toISOString());
+  }
+});
+
+// Specify the path to your secret file
+// const secretFilePath = '/etc/secrets/firebaseKey.json';
+const serviceAccount = JSON.parse(fs.readFileSync('/etc/secrets/firebaseKey.json', 'utf8'));
+
+try {
+  // // Read the content of the secret file
+  // const secretFileContents = fs.readFileSync(secretFilePath, 'utf8');
+  
+  // // Parse the JSON content if it's a JSON file
+  // const serviceAccount = JSON.parse(secretFileContents);
+const serviceAccount = JSON.parse(fs.readFileSync('/etc/secrets/firebaseKey.json', 'utf8'));
+
+  
+  // Now you can use secretData in your application
+  // For example, if it contains a Firebase key:
+  // const firebaseConfig = secretData.firebase;
+  
+  // Continue with your application logic...
+} catch (err) {
+  console.error('Error reading or parsing secret file:', err);
+}
+
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -360,12 +404,14 @@ function sendCurrentTimeAndCards() {
     };
 
 
-const today = new Date(); // Get the current date
-const year = today.getFullYear().toString();
-const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 0
-const date = today.getDate().toString().padStart(2, '0');
-const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
-const actualDate = `${year}/${month}:${date}`;
+
+    
+//const today = new Date(); // Get the current date
+const year = synchronizedDate.getFullYear().toString();
+const month = (synchronizedDate.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = synchronizedDate.getDate().toString().padStart(2, '0');
+const acutualTime = `${synchronizedDate.getHours()}:${synchronizedDate.getMinutes()}:${synchronizedDate.getSeconds()}`;
+const actualDate = `${year}/${month}/${date}`;
 
 
 // Reference to the "Winning Cards" collection
@@ -403,7 +449,6 @@ const data = {
   .catch((error) => {
     console.error('Error writing data to Firestore: ', error);
   });
-
 
 
     lastResponses.unshift(response.winner);

@@ -3,27 +3,24 @@ const WebSocket = require('ws');
 const admin = require('firebase-admin');
 
 const fs = require('fs');
+const axios = require('axios');
 
-const ntpClient = require('ntp-client');
+// Replace with the appropriate time API endpoint
+const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now';
 
-// Define the NTP server you want to synchronize with
-const ntpServer = 'pool.ntp.org'; // You can replace this with a preferred NTP server
-
-// Synchronize the server's time with the NTP server
-ntpClient.getNetworkTime(ntpServer, 123, (err, date) => {
-  if (err) {
-    console.error('Error synchronizing time:', err);
-  } else {
-    // Set the server's system time to the obtained NTP time
-    ntpClient.setSystemTime(date);
-    console.log('Server time synchronized:', date);
-    
-    // Now you can use the synchronized time in your application
-    const synchronizedDate = new Date();
-
-    // Example: Log the synchronized date and time
-    console.log('Synchronized Date:', synchronizedDate.toISOString());
-  }
+axios.get(timeApiUrl, {
+  headers: {
+    'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',
+    'X-RapidAPI-Key': 'e83c0e16aemshd9fe772131232a2p15ca28jsnc05ee66a0539', // Replace with your API key
+  },
+})
+.then((response) => {
+  const timeData = response.data;
+  const apiTime = new Date(timeData.currentDateTime);
+  // Use currentTime for your application logic
+})
+.catch((error) => {
+  console.error('Error fetching time from the time API: ', error);
 });
 
 // Specify the path to your secret file
@@ -407,10 +404,10 @@ function sendCurrentTimeAndCards() {
 
     
 //const today = new Date(); // Get the current date
-const year = synchronizedDate.getFullYear().toString();
-const month = (synchronizedDate.getMonth() + 1).toString().padStart(2, '0'); // January is 0
-const date = synchronizedDate.getDate().toString().padStart(2, '0');
-const acutualTime = `${synchronizedDate.getHours()}:${synchronizedDate.getMinutes()}:${synchronizedDate.getSeconds()}`;
+const year = apiTime.getFullYear().toString();
+const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = apiTime.getDate().toString().padStart(2, '0');
+const acutualTime = `${apiTime.getHours()}:${apiTime.getMinutes()}:${apiTime.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
 
 

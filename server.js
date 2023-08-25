@@ -18,6 +18,13 @@ axios.get(timeApiUrl, {
   const timeData = response.data;
   const apiTime = new Date(timeData.currentDateTime);
 
+  
+const year = apiTime.getFullYear().toString();
+const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = apiTime.getDate().toString().padStart(2, '0');
+const acutualTime = `${apiTime.getHours()}:${apiTime.getMinutes()}:${apiTime.getSeconds()}`;
+const actualDate = `${year}/${month}/${date}`;
+
   // Now that apiTime is defined, you can use it here
   
   // Continue with your application logic...
@@ -407,11 +414,6 @@ function sendCurrentTimeAndCards() {
 
     
 //const today = new Date(); // Get the current date
-const year = apiTime.getFullYear().toString();
-const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
-const date = apiTime.getDate().toString().padStart(2, '0');
-const acutualTime = `${apiTime.getHours()}:${apiTime.getMinutes()}:${apiTime.getSeconds()}`;
-const actualDate = `${year}/${month}/${date}`;
 
 
 // Reference to the "Winning Cards" collection

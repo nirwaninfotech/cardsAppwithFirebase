@@ -8,8 +8,6 @@ const axios = require('axios');
 // Replace with the appropriate time API endpoint
 const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now';
 
-let apiTime;
-
 axios.get(timeApiUrl, {
   headers: {
     'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',
@@ -19,7 +17,10 @@ axios.get(timeApiUrl, {
 .then((response) => {
   const timeData = response.data;
   const apiTime = new Date(timeData.currentDateTime);
-  // Use currentTime for your application logic
+
+  // Now that apiTime is defined, you can use it here
+  
+  // Continue with your application logic...
 })
 .catch((error) => {
   console.error('Error fetching time from the time API: ', error);

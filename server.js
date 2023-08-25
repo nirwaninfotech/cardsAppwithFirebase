@@ -7,7 +7,11 @@ const axios = require('axios');
 
 // Replace with the appropriate time API endpoint
 const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now';
-
+let year;
+let month;
+let date;
+let acutualTime;
+let actualDate;
 axios.get(timeApiUrl, {
   headers: {
     'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',

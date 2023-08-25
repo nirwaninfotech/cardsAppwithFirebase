@@ -327,7 +327,7 @@ function getRandomIndex(list) {
 // ...
 
 // Define a function to send both current time and winning cards
-function sendCurrentTimeAndCards() = async () =>{
+function sendCurrentTimeAndCards = async () =>{
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
   // Replace winningCardSet with your actual winning card set ('a' or 'b')
 

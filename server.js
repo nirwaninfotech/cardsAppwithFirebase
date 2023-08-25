@@ -7,11 +7,9 @@ const axios = require('axios');
 
 // Replace with the appropriate time API endpoint
 const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now';
-let year;
-let month;
-let date;
-let acutualTime;
-let actualDate;
+
+let apiTime; // Declare a variable to store the API response
+
 axios.get(timeApiUrl, {
   headers: {
     'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',
@@ -20,22 +18,13 @@ axios.get(timeApiUrl, {
 })
 .then((response) => {
   const timeData = response.data;
-  const apiTime = new Date(timeData.currentDateTime);
-
-  
-const year = apiTime.getFullYear().toString();
-const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
-const date = apiTime.getDate().toString().padStart(2, '0');
-const acutualTime = `${apiTime.getHours()}:${apiTime.getMinutes()}:${apiTime.getSeconds()}`;
-const actualDate = `${year}/${month}/${date}`;
-
-  // Now that apiTime is defined, you can use it here
-  
-  // Continue with your application logic...
+  apiTime = new Date(timeData.currentDateTime);
+  // Use apiTime for your application logic
 })
 .catch((error) => {
   console.error('Error fetching time from the time API: ', error);
 });
+
 
 // Specify the path to your secret file
 // const secretFilePath = '/etc/secrets/firebaseKey.json';
@@ -418,6 +407,12 @@ function sendCurrentTimeAndCards() {
 
     
 //const today = new Date(); // Get the current date
+
+const year = apiTime.getFullYear().toString();
+const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = apiTime.getDate().toString().padStart(2, '0');
+const acutualTime = `${apiTime.getHours()}:${apiTime.getMinutes()}:${apiTime.getSeconds()}`;
+const actualDate = `${year}/${month}/${date}`;
 
 
 // Reference to the "Winning Cards" collection

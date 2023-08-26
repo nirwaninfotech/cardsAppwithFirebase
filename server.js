@@ -13,7 +13,7 @@ const getTimeFromAPI = async () => {
     const response = await axios.get('https://world-clock.p.rapidapi.com/json/utc/now', {
       headers: {
         'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',
-        'X-RapidAPI-Key': 'YOUR_RAPIDAPI_KEY', // Replace with your RapidAPI key
+        'X-RapidAPI-Key': 'e83c0e16aemshd9fe772131232a2p15ca28jsnc05ee66a0539', // Replace with your RapidAPI key
       },
     });
 

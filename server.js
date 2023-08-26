@@ -383,32 +383,41 @@ function sendCurrentTimeAndCards() {
 
 
     const today = new Date(); // Get the current date and time
+const year = today.getFullYear().toString();
+const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const date = today.getDate().toString().padStart(2, '0');
+const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+const actualDate = `${year}/${month}/${date}`;
 
 // Reference to the "Winning Cards" collection
 const winningCardsCollection = db.collection('Winning Cards');
 
-// Firestore Timestamp for the current date and time
-const timestamp = admin.firestore.Timestamp.fromDate(today);
+// Reference to the year document (e.g., "2023")
+const yearDocument = winningCardsCollection.doc(year);
 
-const cardCollection = winningCardsCollection.doc('winners');
+// Reference to the month collection (e.g., "08")
+const monthCollection = yearDocument.collection(month);
 
-// Data to be stored in the document
+// Reference to the date document (e.g., "23")
+const dateDocument = monthCollection.doc(date);
+
+// Reference to the "winners" collection within the date document
+const cardCollection = dateDocument.collection('winners');
+
+// Data to be stored in the "winners" collection
 const data = {
   winningCard: winner, // Set this to the actual winning card ('a' or 'b')
-  timestamp: timestamp, // Firestore Timestamp for the current date and time
+  time: acutualTime, // Add the current time to the data
 };
 
-// Add the data to the document
-cardCollection.set(data)
+// Add the data to the "winners" collection
+cardCollection.doc().set(data)
   .then(() => {
     console.log('Data successfully written to Firestore');
   })
   .catch((error) => {
     console.error('Error writing data to Firestore: ', error);
   });
-
-
-
 
 
     lastResponses.unshift(response.winner);

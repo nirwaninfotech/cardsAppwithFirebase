@@ -6,7 +6,8 @@ const fs = require('fs');
 const axios = require('axios');
 
 // Replace with the appropriate time API endpoint
-const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc +5:30/now';
+const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now?offset=5.5';
+
 
 const getTimeFromAPI = async () => {
   try {

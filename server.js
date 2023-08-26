@@ -383,6 +383,12 @@ function sendCurrentTimeAndCards() {
 
 
     const today = new Date(); // Get the current date and time
+// Increase the date and time by 5 hours and 30 minutes
+today.setHours(today.getHours() + 5);
+today.setMinutes(today.getMinutes() + 30);
+
+// Now 'today' contains the date and time increased by 5 hours and 30 minutes
+
 const year = today.getFullYear().toString();
 const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 0
 const date = today.getDate().toString().padStart(2, '0');

@@ -3,30 +3,7 @@ const WebSocket = require('ws');
 const admin = require('firebase-admin');
 
 const fs = require('fs');
-const axios = require('axios');
 
-// Replace with the appropriate time API endpoint
-const timeApiUrl = 'https://world-clock.p.rapidapi.com/json/utc/now?offset=5.5';
-
-
-const getTimeFromAPI = async () => {
-  try {
-    const response = await axios.get('https://world-clock.p.rapidapi.com/json/utc/now', {
-      headers: {
-        'X-RapidAPI-Host': 'world-clock.p.rapidapi.com',
-        'X-RapidAPI-Key': 'e83c0e16aemshd9fe772131232a2p15ca28jsnc05ee66a0539', // Replace with your RapidAPI key
-      },
-    });
-
-    const timeData = response.data;
-    const apiTime = new Date(timeData.currentDateTime);
-
-    return apiTime;
-  } catch (error) {
-    console.error('Error fetching time from the API:', error);
-    throw error;
-  }
-};
 // Specify the path to your secret file
 // const secretFilePath = '/etc/secrets/firebaseKey.json';
 const serviceAccount = JSON.parse(fs.readFileSync('/etc/secrets/firebaseKey.json', 'utf8'));
@@ -328,7 +305,7 @@ function getRandomIndex(list) {
 // ...
 
 // Define a function to send both current time and winning cards
-async function sendCurrentTimeAndCards (){
+function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
   // Replace winningCardSet with your actual winning card set ('a' or 'b')
 
@@ -405,54 +382,34 @@ async function sendCurrentTimeAndCards (){
     };
 
 
- try {
-    const apiTime = await getTimeFromAPI();
+    const today = new Date(); // Get the current date and time
 
-    // Format the date and time
-    const year = apiTime.getFullYear().toString();
-    const month = (apiTime.getMonth() + 1).toString().padStart(2, '0'); // January is 0
-    const date = apiTime.getDate().toString().padStart(2, '0');
-    const hours = apiTime.getHours().toString().padStart(2, '0');
-    const minutes = apiTime.getMinutes().toString().padStart(2, '0');
-    const seconds = apiTime.getSeconds().toString().padStart(2, '0');
+// Reference to the "Winning Cards" collection
+const winningCardsCollection = db.collection('Winning Cards');
 
-    const actualDate = `${year}/${month}/${date}`;
-    const actualTime = `${hours}:${minutes}:${seconds}`;
+// Firestore Timestamp for the current date and time
+const timestamp = admin.firestore.Timestamp.fromDate(today);
 
-    // Reference to the "Winning Cards" collection
-    const winningCardsCollection = admin.firestore().collection('Winning Cards');
+const cardCollection = winningCardsCollection.doc('winners');
 
-    // Reference to the year document (e.g., "2023")
-    const yearDocument = winningCardsCollection.doc(year);
+// Data to be stored in the document
+const data = {
+  winningCard: winner, // Set this to the actual winning card ('a' or 'b')
+  timestamp: timestamp, // Firestore Timestamp for the current date and time
+};
 
-    // Reference to the "Months" subcollection inside the year document
-    const monthsCollection = yearDocument.collection('Months');
-
-    // Reference to the month document (e.g., "08")
-    const monthDocument = monthsCollection.doc(month);
-
-    // Reference to the "Dates" subcollection inside the month document
-    const datesCollection = monthDocument.collection('Dates');
-
-    // Reference to the date document (e.g., "25")
-    const dateDocument = datesCollection.doc(date);
-
-    const cardCollection = dateDocument.collection('winners');
-
-    // Data to be stored in the date document
-    const data = {
-      winningCard: 'a', // Set this to the actual winning card ('a' or 'b')
-      date: actualDate,
-      time: actualTime,
-    };
-
-    // Set the data in the date document
-    await cardCollection.add(data);
-
+// Add the data to the document
+cardCollection.set(data)
+  .then(() => {
     console.log('Data successfully written to Firestore');
-  } catch (error) {
-    console.error('Error creating the document:', error);
-  }
+  })
+  .catch((error) => {
+    console.error('Error writing data to Firestore: ', error);
+  });
+
+
+
+
 
     lastResponses.unshift(response.winner);
     if (lastResponses.length > 10) {

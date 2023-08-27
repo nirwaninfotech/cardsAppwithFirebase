@@ -414,10 +414,11 @@ const cardCollection = dateDocument.collection('winners');
 const data = {
   winningCard: winner, // Set this to the actual winning card ('a' or 'b')
   time: acutualTime, // Add the current time to the data
+  date : acturalDate,
 };
 
 // Add the data to the "winners" collection
-cardCollection.doc().set(data)
+cardCollection.doc(acturalTime).set(data)
   .then(() => {
     console.log('Data successfully written to Firestore');
   })

@@ -31,6 +31,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   // // Replace with your Firebase Database URL
 });
+const firebase = require('firebase-admin');
 
 const port = process.env.PORT || 8080;
 

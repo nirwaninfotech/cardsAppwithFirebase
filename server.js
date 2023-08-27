@@ -415,6 +415,7 @@ const data = {
   winningCard: winner, // Set this to the actual winning card ('a' or 'b')
   time: acutualTime, // Add the current time to the data
   date : actualDate,
+  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 };
 
 // Add the data to the "winners" collection

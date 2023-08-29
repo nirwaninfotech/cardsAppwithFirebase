@@ -459,6 +459,8 @@ setInterval(() => {
 
 
 
+// ...
+
 wss.on('connection', (ws) => {
   console.log('Client connected');
   ws.send(JSON.stringify(lastResponses));
@@ -467,18 +469,29 @@ wss.on('connection', (ws) => {
     console.log('Received:', message);
     try {
       const data = JSON.parse(message);
-      const { key, value, force } = data;
+      const { secretKey, key, value, force } = data;
       console.log(key);
       console.log(value);
       console.log(force);
 
-      if (force === 'a' || force === 'b') {
-        forceValue = force;
-      } else if (key === 'a') {
-        userVotes.a += value;
-      } else if (key === 'b') {
-        userVotes.b += value;
+      let success = false; // Initialize success as false
+
+      if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
+        // Secret key matches, proceed with other checks
+        if (force === 'a' || force === 'b' && currentTime < 98) {
+          forceValue = force;
+        } else if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes
+          userVotes.a += value;
+          success = true;
+        } else if (key === 'b' && currentTime < 97) { // Check currentTime before incrementing votes
+          userVotes.b += value;
+          success = true;
+        }
       }
+
+      // Send the success status back to the client
+      ws.send(JSON.stringify({ success }));
+
     } catch (error) {
       console.error('Error parsing message:', error);
     }

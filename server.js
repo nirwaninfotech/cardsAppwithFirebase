@@ -304,14 +304,6 @@ function getRandomIndex(list) {
 
 // ...
 
-
-// function generateSessionId() {
-//   // Generate a unique sessionId, e.g., using a timestamp
-//   return `X95TP_${new Date().getTime()}`;
-// }
-// let sessionId = generateSessionId(); // Generate an initial sessionId
-
-
 // Define a function to send both current time and winning cards
 function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
@@ -327,7 +319,6 @@ function sendCurrentTimeAndCards() {
   if (currentTime >= 100) {
     startTime = new Date();
     currentTime = 0;
-//    sessionId = generateSessionId();
   }
 
   // Send current time every second
@@ -426,7 +417,6 @@ const data = {
   time: acutualTime, // Add the current time to the data
   date : actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-//  sessionId : sessionId, 
 };
 
 // Add the data to the "winners" collection
@@ -499,7 +489,8 @@ wss.on('connection', (ws) => {
         }
       }
 
-    ws.send(JSON.stringify({ success }));
+      // Send the success status back to the client
+      ws.send(JSON.stringify({ success }));
 
     } catch (error) {
       console.error('Error parsing message:', error);

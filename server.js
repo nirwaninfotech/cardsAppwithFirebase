@@ -483,8 +483,7 @@ wss.on('connection', (ws) => {
       console.log(value);
       console.log(force);
 
-      let success = false; // Initialize success as false
-      let sessionIdToSend = sessionId; 
+      let success = false; // Initialize success as false 
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks

@@ -294,7 +294,6 @@ let userVotes = {
   b: 0,
 };
 
-let sessionId = null;
 
 let sessionIdCounter = 1;
 
@@ -310,17 +309,20 @@ function getRandomIndex(list) {
 
 // ...
 function generateSessionId() {
-  const timestamp = Date.now(); // Get the current timestamp
-  const sessionId = `X95TP-${timestamp}-${sessionIdCounter}`;
-  sessionIdCounter++; // Increment the counter for the next session
+  
+   // Increment the counter for the next session
   return sessionId;
 }
 // Define a function to send both current time and winning cards
 function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
   // Replace winningCardSet with your actual winning card set ('a' or 'b')
-
+  
   const db = admin.firestore();
+
+  let sessionId = null;
+  const sessionId = `X95TP-${startTime}-${sessionIdCounter}`;
+
 
 
 // Use the timestamp as the document name
@@ -331,6 +333,7 @@ function sendCurrentTimeAndCards() {
     startTime = new Date();
     currentTime = 0;
     sessionId = generateSessionId();
+    sessionIdCounter++;
   }
 
   // Send current time every second
@@ -345,7 +348,7 @@ function sendCurrentTimeAndCards() {
     let selectedCards = [];
     let winningSet = null;
     let winner = '';
-
+    
     if (forceValue === 'a') {
       selectedCards = awinning[getRandomIndex(awinning)];
       winner = 'a';
@@ -408,11 +411,14 @@ const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSecond
 const actualDate = `${year}/${month}/${date}`;
 const yearMonth = `${year}/${month}`;
 
-// Reference to the "Winning Cards" collection
-// Reference to the date document (e.g., "23")
-const dateDocument = monthCollection.doc(yearMonth);
+const winningCardsCollection = db.collection('Teen Patti Winner Card');
+
+// Reference to the month collection (e.g., "08")
+
+const dateDocument = winningCardsCollection.doc(yearMonth);
 
 // Reference to the "winners" collection within the date document
+    
 const cardCollection = dateDocument.collection('winners');
 
 // Data to be stored in the "winners" collection

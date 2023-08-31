@@ -406,7 +406,7 @@ const yearDocument = winningCardsCollection.doc(yearMonth);
 const dateCollection = yearDocument.collection('dates');
 
 // Reference to the date document (e.g., "23")
-const dateDocument = monthCollection.doc(date);
+const dateDocument = dateCollection.doc(date);
 
 // Reference to the "winners" collection within the date document
 const cardCollection = dateDocument.collection('winners');

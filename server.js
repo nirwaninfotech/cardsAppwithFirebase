@@ -393,37 +393,32 @@ const month = (today.getMonth() + 1).toString().padStart(2, '0');
 const date = today.getDate().toString().padStart(2, '0');
 const actualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
-const yearMonth = `${year}/${month}`;
 
-// Reference to the "TeenPattiWinningCards" collection (no spaces)
+// Reference to the root-level collection "TeenPattiWinningCards"
 const winningCardsCollection = db.collection('TeenPattiWinningCards');
 
-// Reference to the year document (e.g., "2023/08")
-const yearDocument = winningCardsCollection.doc(yearMonth);
+// Reference to the year subcollection (e.g., "2023")
+const yearSubcollection = winningCardsCollection.doc(year).collection(month);
 
-// Reference to the date document (e.g., "23")
-const dateDocument = yearDocument.collection('dates').doc(date);
-
-// Use a combination of actualTime and a unique identifier as the document ID
-const uniqueDocumentId = `${actualTime}_${sessionId}`; // Replace sessionId with your actual session ID
+// Create a document with a unique ID (e.g., "23")
+const uniqueDocumentId = date; // You can use a date as a document ID
 
 // Data to be stored in the document
 const data = {
-  winningCard: winner, // Set this to the actual winning card ('a' or 'b')
+  winningCard: winner,
   time: actualTime,
   date: actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 };
 
 // Add the data to the document with the unique ID
-dateDocument.collection('winners').doc(uniqueDocumentId).set(data)
+yearSubcollection.doc(uniqueDocumentId).set(data)
   .then(() => {
     console.log('Data successfully written to Firestore');
   })
   .catch((error) => {
     console.error('Error writing data to Firestore: ', error);
   });
-
 
     lastResponses.unshift(response.winner);
     if (lastResponses.length > 10) {

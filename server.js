@@ -293,6 +293,11 @@ let userVotes = {
   a: 0,
   b: 0,
 };
+
+let sessionId = null;
+
+let sessionIdCounter = 1;
+
 const lastResponses = [];
 
 let forceValue = null;
@@ -304,7 +309,12 @@ function getRandomIndex(list) {
 }
 
 // ...
-
+function generateSessionId() {
+  const timestamp = Date.now(); // Get the current timestamp
+  const sessionId = `X95TP-${timestamp}-${sessionIdCounter}`;
+  sessionIdCounter++; // Increment the counter for the next session
+  return sessionId;
+}
 // Define a function to send both current time and winning cards
 function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
@@ -320,6 +330,7 @@ function sendCurrentTimeAndCards() {
   if (currentTime >= 100) {
     startTime = new Date();
     currentTime = 0;
+    sessionId = generateSessionId();
   }
 
   // Send current time every second
@@ -395,18 +406,11 @@ const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 
 const date = today.getDate().toString().padStart(2, '0');
 const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
+const yearMonth = `${year}/${month}`;
 
 // Reference to the "Winning Cards" collection
-const winningCardsCollection = db.collection('Winning Cards');
-
-// Reference to the year document (e.g., "2023")
-const yearDocument = winningCardsCollection.doc(year);
-
-// Reference to the month collection (e.g., "08")
-const monthCollection = yearDocument.collection(month);
-
 // Reference to the date document (e.g., "23")
-const dateDocument = monthCollection.doc(date);
+const dateDocument = monthCollection.doc(yearMonth);
 
 // Reference to the "winners" collection within the date document
 const cardCollection = dateDocument.collection('winners');
@@ -417,6 +421,7 @@ const data = {
   time: acutualTime, // Add the current time to the data
   date : actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+  sessionId: sessionId,
 };
 
 // Add the data to the "winners" collection
@@ -475,6 +480,7 @@ wss.on('connection', (ws) => {
       console.log(force);
 
       let success = false; // Initialize success as false
+      let sessionIdToSend = sessionId; 
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
@@ -490,7 +496,7 @@ wss.on('connection', (ws) => {
       }
 
       // Send the success status back to the client
-      ws.send(JSON.stringify({ success }));
+      ws.send(JSON.stringify({ success, sessionId: sessionIdToSend }));
 
     } catch (error) {
       console.error('Error parsing message:', error);

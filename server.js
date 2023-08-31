@@ -324,7 +324,7 @@ function sendCurrentTimeAndCards() {
 
 
   // Reset the time when it reaches 100 seconds
-  if (currentTime >= 100) {
+  if (currentTime >= 65) {
     startTime = new Date();
     currentTime = 0;
     sessionId = generateSessionId();
@@ -338,7 +338,7 @@ function sendCurrentTimeAndCards() {
   });
 
   // Send selected cards after 99 seconds
-  if (currentTime === 99) {
+  if (currentTime === 64) {
     let selectedCards = [];
     let winningSet = null;
     let winner = '';

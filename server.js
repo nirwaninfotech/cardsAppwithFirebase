@@ -288,15 +288,10 @@ const bwinning = [
   },
 ];
 
-
 let userVotes = {
   a: 0,
   b: 0,
 };
-
-
-let sessionIdCounter = 1;
-
 const lastResponses = [];
 
 let forceValue = null;
@@ -308,20 +303,13 @@ function getRandomIndex(list) {
 }
 
 // ...
-function generateSessionId() {
-  
-   // Increment the counter for the next session
-  return sessionId;
-}
+
 // Define a function to send both current time and winning cards
 function sendCurrentTimeAndCards() {
   let currentTime = Math.floor((new Date() - startTime) / 1000); // Elapsed time in seconds
   // Replace winningCardSet with your actual winning card set ('a' or 'b')
-  
+
   const db = admin.firestore();
-
-  let sessionId = `X95TP-${startTime}-${sessionIdCounter}`;
-
 
 
 // Use the timestamp as the document name
@@ -331,7 +319,6 @@ function sendCurrentTimeAndCards() {
   if (currentTime >= 100) {
     startTime = new Date();
     currentTime = 0;
-    sessionIdCounter++;
   }
 
   // Send current time every second
@@ -346,7 +333,7 @@ function sendCurrentTimeAndCards() {
     let selectedCards = [];
     let winningSet = null;
     let winner = '';
-    
+
     if (forceValue === 'a') {
       selectedCards = awinning[getRandomIndex(awinning)];
       winner = 'a';
@@ -407,16 +394,20 @@ const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 
 const date = today.getDate().toString().padStart(2, '0');
 const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
-const yearMonth = `${year}/${month}`;
 
-const winningCardsCollection = db.collection('Teen Patti Winner Card');
+// Reference to the "Winning Cards" collection
+const winningCardsCollection = db.collection('Winning Cards');
+
+// Reference to the year document (e.g., "2023")
+const yearDocument = winningCardsCollection.doc(year);
 
 // Reference to the month collection (e.g., "08")
+const monthCollection = yearDocument.collection(month);
 
-const dateDocument = winningCardsCollection.doc(yearMonth);
+// Reference to the date document (e.g., "23")
+const dateDocument = monthCollection.doc(date);
 
 // Reference to the "winners" collection within the date document
-    
 const cardCollection = dateDocument.collection('winners');
 
 // Data to be stored in the "winners" collection
@@ -425,7 +416,6 @@ const data = {
   time: acutualTime, // Add the current time to the data
   date : actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  sessionId: sessionId,
 };
 
 // Add the data to the "winners" collection
@@ -483,7 +473,7 @@ wss.on('connection', (ws) => {
       console.log(value);
       console.log(force);
 
-      let success = false; // Initialize success as false 
+      let success = false; // Initialize success as false
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
@@ -499,7 +489,7 @@ wss.on('connection', (ws) => {
       }
 
       // Send the success status back to the client
-      ws.send(JSON.stringify({ success, sessionId: sessionIdToSend }));
+      ws.send(JSON.stringify({ success }));
 
     } catch (error) {
       console.error('Error parsing message:', error);

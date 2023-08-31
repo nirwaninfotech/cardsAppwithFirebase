@@ -388,34 +388,35 @@ today.setHours(today.getHours() + 5);
 today.setMinutes(today.getMinutes() + 30);
 
 // Now 'today' contains the date and time increased by 5 hours and 30 minutes
-
 const year = today.getFullYear().toString();
-const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 0
+const month = (today.getMonth() + 1).toString().padStart(2, '0');
 const date = today.getDate().toString().padStart(2, '0');
-const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+const actualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
 const yearMonth = `${year}/${month}`;
 
-// Reference to the "Winning Cards" collection
-const winningCardsCollection = db.collection('Teen Patti Winning Cards');
+// Reference to the "TeenPattiWinningCards" collection (no spaces)
+const winningCardsCollection = db.collection('TeenPattiWinningCards');
 
-// Reference to the year document (e.g., "2023")
+// Reference to the year document (e.g., "2023/08")
 const yearDocument = winningCardsCollection.doc(yearMonth);
 
-// Reference to the month collection (e.g., "08")
-const dateCollection = yearDocument.collection('dates');
+// Reference to the date document (e.g., "23")
+const dateDocument = yearDocument.collection('dates').doc(date);
 
+// Use a combination of actualTime and a unique identifier as the document ID
+const uniqueDocumentId = `${actualTime}_${sessionId}`; // Replace sessionId with your actual session ID
 
-// Data to be stored in the "winners" collection
+// Data to be stored in the document
 const data = {
   winningCard: winner, // Set this to the actual winning card ('a' or 'b')
-  time: acutualTime, // Add the current time to the data
-  date : actualDate,
+  time: actualTime,
+  date: actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 };
 
-// Add the data to the "winners" collection
-dateCollection.doc(acutualTime).set(data)
+// Add the data to the document with the unique ID
+dateDocument.collection('winners').doc(uniqueDocumentId).set(data)
   .then(() => {
     console.log('Data successfully written to Firestore');
   })

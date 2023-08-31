@@ -500,7 +500,7 @@ wss.on('connection', (ws) => {
       }
 
       // Send the success status back to the client
-      ws.send(JSON.stringify({ success, sessionId }));
+      ws.send(JSON.stringify({ sessionId, success }));
 
     } catch (error) {
       console.error('Error parsing message:', error);

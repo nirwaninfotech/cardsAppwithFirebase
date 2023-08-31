@@ -426,7 +426,7 @@ const data = {
   time: acutualTime, // Add the current time to the data
   date : actualDate,
   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-  sessionId: success, sessionId,
+  sessionId: sessionId,
 };
 
 // Add the data to the "winners" collection

@@ -394,21 +394,17 @@ const month = (today.getMonth() + 1).toString().padStart(2, '0'); // January is 
 const date = today.getDate().toString().padStart(2, '0');
 const acutualTime = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
 const actualDate = `${year}/${month}/${date}`;
+const yearMonth = `${year}/${month}`;
 
 // Reference to the "Winning Cards" collection
-const winningCardsCollection = db.collection('Winning Cards');
+const winningCardsCollection = db.collection('Teen Patti Winning Cards');
 
 // Reference to the year document (e.g., "2023")
-const yearDocument = winningCardsCollection.doc(year);
+const yearDocument = winningCardsCollection.doc(yearMonth);
 
 // Reference to the month collection (e.g., "08")
-const monthCollection = yearDocument.collection(month);
+const dateCollection = yearDocument.collection('dates');
 
-// Reference to the date document (e.g., "23")
-const dateDocument = monthCollection.doc(date);
-
-// Reference to the "winners" collection within the date document
-const cardCollection = dateDocument.collection('winners');
 
 // Data to be stored in the "winners" collection
 const data = {
@@ -419,7 +415,7 @@ const data = {
 };
 
 // Add the data to the "winners" collection
-cardCollection.doc(acutualTime).set(data)
+dateCollection.doc(acutualTime).set(data)
   .then(() => {
     console.log('Data successfully written to Firestore');
   })

@@ -320,8 +320,7 @@ function sendCurrentTimeAndCards() {
   
   const db = admin.firestore();
 
-  let sessionId = null;
-  const sessionId = `X95TP-${startTime}-${sessionIdCounter}`;
+  let sessionId = `X95TP-${startTime}-${sessionIdCounter}`;
 
 
 
@@ -332,7 +331,6 @@ function sendCurrentTimeAndCards() {
   if (currentTime >= 100) {
     startTime = new Date();
     currentTime = 0;
-    sessionId = generateSessionId();
     sessionIdCounter++;
   }
 

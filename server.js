@@ -293,8 +293,6 @@ let userVotes = {
   b: 0,
 };
 
-const pingInterval = 30000; // Send a ping every 30 seconds (adjust as needed)
-
 const lastResponses = [];
 
 let forceValue = null;
@@ -470,20 +468,12 @@ setInterval(() => {
 
 // ...
 
-function handlePingPong(ws, pingInterval) {
-  setInterval(() => {
-    if (ws.readyState === WebSocket.OPEN) {
-      const pingTimestamp = new Date().getTime();
-      ws.send(JSON.stringify({ ping: pingTimestamp }));
-    }
-  }, pingInterval);
-}
+
 
 // ...
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  handlePingPong(ws, pingInterval);
   ws.send(JSON.stringify(lastResponses));
 
   ws.on('message', (message) => {

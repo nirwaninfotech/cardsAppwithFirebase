@@ -723,9 +723,9 @@ function sendCurrentTimeAndCards() {
     } else if (forceValue === 'b') {
       selectedCards = bwinning[getRandomIndex(bwinning)];
       winner = 'b';
-    }else if (forceValue === 'draw') {
+    }else if (forceValue === 'd') {
       selectedCards = drawCards[getRandomIndex(bwinning)];
-      winner = 'draw';
+      winner = 'd';
     }
     else {
       const totalVotes = userVotes.a + userVotes.b;
@@ -866,7 +866,7 @@ wss.on('connection', (ws) => {
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
-        if (force === 'a' || force === 'b' || force == 'draw' && currentTime < 98) {
+        if (force === 'a' || force === 'b' || force == 'd' && currentTime < 98) {
           console.log('Force alue:', force);
           forceValue = force;
           success = true;

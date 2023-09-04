@@ -867,6 +867,7 @@ wss.on('connection', (ws) => {
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
         if (force === 'a' || force === 'b' || force == 'draw' && currentTime < 98) {
+          console.log('Force alue:', force);
           forceValue = force;
           success = true;
         } else if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes

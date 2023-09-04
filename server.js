@@ -37,6 +37,116 @@ const port = process.env.PORT || 8080;
 
 const wss = new WebSocket.Server({ port: port });
 
+const drawCards = [
+  {
+    "A_Set": [
+      { 'suit': 'club', 'card': '2' },
+      { 'suit': 'diamond', 'card': '3' },
+      { 'suit': 'spade', 'card': '4' },
+    ],
+    "B_Set": [
+      { 'suit': 'heart', 'card': '5' },
+      { 'suit': 'diamond', 'card': '6' },
+      { 'suit': 'spade', 'card': '7' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'spade', 'card': '5' },
+      { 'suit': 'diamond', 'card': '6' },
+      { 'suit': 'heart', 'card': '7' },
+    ],
+    "B_Set": [
+      { 'suit': 'club', 'card': '2' },
+      { 'suit': 'diamond', 'card': '3' },
+      { 'suit': 'spade', 'card': '4' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'diamond', 'card': '2' },
+      { 'suit': 'spade', 'card': '3' },
+      { 'suit': 'heart', 'card': '4' },
+    ],
+    "B_Set": [
+      { 'suit': 'club', 'card': '8' },
+      { 'suit': 'diamond', 'card': '9' },
+      { 'suit': 'spade', 'card': '10' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'club', 'card': '9' },
+      { 'suit': 'heart', 'card': '10' },
+      { 'suit': 'diamond', 'card': 'king' },
+    ],
+    "B_Set": [
+      { 'suit': 'spade', 'card': '6' },
+      { 'suit': 'heart', 'card': '3' },
+      { 'suit': 'club', 'card': '8' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'spade', 'card': '3' },
+      { 'suit': 'diamond', 'card': '4' },
+      { 'suit': 'heart', 'card': '5' },
+    ],
+    "B_Set": [
+      { 'suit': 'club', 'card': '6' },
+      { 'suit': 'spade', 'card': '7' },
+      { 'suit': 'diamond', 'card': '8' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'club', 'card': '2' },
+      { 'suit': 'diamond', 'card': '3' },
+      { 'suit': 'spade', 'card': '4' },
+    ],
+    "B_Set": [
+      { 'suit': 'heart', 'card': '5' },
+      { 'suit': 'diamond', 'card': '6' },
+      { 'suit': 'spade', 'card': '7' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'spade', 'card': '5' },
+      { 'suit': 'diamond', 'card': '6' },
+      { 'suit': 'heart', 'card': '7' },
+    ],
+    "B_Set": [
+      { 'suit': 'club', 'card': '2' },
+      { 'suit': 'diamond', 'card': '3' },
+      { 'suit': 'spade', 'card': '4' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'diamond', 'card': '2' },
+      { 'suit': 'spade', 'card': '3' },
+      { 'suit': 'heart', 'card': '4' },
+    ],
+    "B_Set": [
+      { 'suit': 'club', 'card': '8' },
+      { 'suit': 'diamond', 'card': '9' },
+      { 'suit': 'spade', 'card': '10' },
+    ]
+  },
+  {
+    "A_Set": [
+      { 'suit': 'club', 'card': '9' },
+      { 'suit': 'heart', 'card': '10' },
+      { 'suit': 'diamond', 'card': 'king' },
+    ],
+    "B_Set": [
+      { 'suit': 'spade', 'card': '6' },
+      { 'suit': 'heart', 'card': '3' },
+      { 'suit': 'club', 'card': '8' },
+    ]
+  },
+];
 
 
 const awinning = [
@@ -613,7 +723,11 @@ function sendCurrentTimeAndCards() {
     } else if (forceValue === 'b') {
       selectedCards = bwinning[getRandomIndex(bwinning)];
       winner = 'b';
-    } else {
+    }else if (forceValue === 'draw') {
+      selectedCards = drawCards[getRandomIndex(bwinning)];
+      winner = 'draw';
+    }
+    else {
       const totalVotes = userVotes.a + userVotes.b;
 
       if (totalVotes > 0) {
@@ -752,7 +866,7 @@ wss.on('connection', (ws) => {
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
-        if (force === 'a' || force === 'b' && currentTime < 98) {
+        if (force === 'a' || force === 'b' || force == 'draw' && currentTime < 98) {
           forceValue = force;
         } else if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes
           userVotes.a += value;

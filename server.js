@@ -868,6 +868,7 @@ wss.on('connection', (ws) => {
         // Secret key matches, proceed with other checks
         if (force === 'a' || force === 'b' || force == 'draw' && currentTime < 98) {
           forceValue = force;
+          success = true;
         } else if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes
           userVotes.a += value;
           success = true;

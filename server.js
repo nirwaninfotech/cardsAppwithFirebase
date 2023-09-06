@@ -867,7 +867,7 @@ wss.on('connection', (ws) => {
       console.log(force);
 
       let success = false; // Initialize success as false
-      if (secretKey == "DHIEKDLNKDNKDIJFPJ4565DDJEJKJSNDNNWUEYJFNALJKEL23ELSN"{
+      if (secretKey == "DHIEKDLNKDNKDIJFPJ4565DDJEJKJSNDNNWUEYJFNALJKEL23ELSN"){
       if (request === 'live_bet') {
         // Handle the live_bet request here and send updates continuously
         // You can use a setInterval to send updates at regular intervals to the specific user.

@@ -867,24 +867,27 @@ wss.on('connection', (ws) => {
       console.log(force);
 
       let success = false; // Initialize success as false
+      if (secretKey == "DHIEKDLNKDNKDIJFPJ4565DDJEJKJSNDNNWUEYJFNALJKEL23ELSN"{
       if (request === 'live_bet') {
         // Handle the live_bet request here and send updates continuously
         // You can use a setInterval to send updates at regular intervals to the specific user.
         setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             // Send updates here, e.g., current bets on 'a' and 'b'
-            ws.send(JSON.stringify({ live_bet_b: 5, live_bet_a: userVotes.a, }));
+            ws.send(JSON.stringify({ live_bet_b: userVotes.b, live_bet_a: userVotes.a, }));
           }
         }, 1000); // Send updates every second
       }
-
-      if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
-        // Secret key matches, proceed with other checks
         if (force === 'a' || force === 'b' || force == 'd' && currentTime < 98) {
           console.log('Force alue:', force);
           forceValue = force;
           success = true;
-        } else if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes
+        }
+      }
+
+      if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
+        // Secret key matches, proceed with other checks
+         if (key === 'a' && currentTime < 97) { // Check currentTime before incrementing votes
           userVotes.a += value;
           success = true;
         } else if (key === 'b' && currentTime < 97) { // Check currentTime before incrementing votes

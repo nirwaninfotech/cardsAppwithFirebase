@@ -870,15 +870,13 @@ wss.on('connection', (ws) => {
       if (request === 'live_bet') {
         // Handle the live_bet request here and send updates continuously
         // You can use a setInterval to send updates at regular intervals to the specific user.
-        const liveBetInterval = setInterval(() => {
+        setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             // Send updates here, e.g., current bets on 'a' and 'b'
-            ws.send(JSON.stringify({ live_bet_b: userVotes.b, live_bet_a: userVotes.a, }));
+            ws.send(JSON.stringify({ live_bet_b: 5, live_bet_a: userVotes.a, }));
           }
         }, 1000); // Send updates every second
-
-        // Store the interval in the user's context to clear it later
-        ws.liveBetInterval = liveBetInterval;}
+      }
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks

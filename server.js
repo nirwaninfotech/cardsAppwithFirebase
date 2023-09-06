@@ -737,7 +737,11 @@ function sendCurrentTimeAndCards() {
         } else if (userVotes.b < userVotes.a) {
           winningSet = bwinning;
           winner = 'b';
-        } else {
+        }else if (userVotes.b == userVotes.a) {
+          winningSet = drawCards;
+          winner = 'd';
+        }
+         else {
           // Randomly choose between awinning and bwinning
           if (Math.random() < 0.5) {
             winningSet = awinning;
@@ -857,12 +861,24 @@ wss.on('connection', (ws) => {
     console.log('Received:', message);
     try {
       const data = JSON.parse(message);
-      const { secretKey, key, value, force } = data;
+      const { secretKey, key, value, force,request } = data;
       console.log(key);
       console.log(value);
       console.log(force);
 
       let success = false; // Initialize success as false
+      if (request === 'live_bet') {
+        // Handle the live_bet request here and send updates continuously
+        // You can use a setInterval to send updates at regular intervals to the specific user.
+        const liveBetInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            // Send updates here, e.g., current bets on 'a' and 'b'
+            ws.send(JSON.stringify({ live_bet_b: userVotes.b, live_bet_a: userVotes.a, }));
+          }
+        }, 1000); // Send updates every second
+
+        // Store the interval in the user's context to clear it later
+        ws.liveBetInterval = liveBetInterval;}
 
       if (secretKey === 'DDFKIEKKBN12JKKFFK6') {
         // Secret key matches, proceed with other checks
